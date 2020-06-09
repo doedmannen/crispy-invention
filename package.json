@@ -20,7 +20,9 @@
   },
   "homepage": "https://github.com/doedmannen/crispy-invention#readme",
   "dependencies": {
-    "express": "^4.17.1"
+    "@types/sqlite3": "^3.1.6",
+    "express": "^4.17.1",
+    "sqlite3": "^4.2.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.6",
