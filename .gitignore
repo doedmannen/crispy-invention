@@ -1,3 +1,6 @@
+# Ignore wwwroot builds 
+wwwroot/
+
 # Logs
 logs
 *.log
