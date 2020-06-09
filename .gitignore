@@ -1,5 +1,5 @@
 # Ignore wwwroot builds 
-wwwroot/
+# wwwroot/
 
 # Logs
 logs
