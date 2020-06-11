@@ -12,7 +12,9 @@ export class ShoppingList {
     }
 
     hasValidName(): boolean {
-        return typeof this.name === 'string' && this.name.trim().length > 0;
+        return typeof this.name === 'string' 
+        && this.name.trim().length > 0
+        && this.name.length <= 30;
     }
 
     isValidForCreate(): boolean {
