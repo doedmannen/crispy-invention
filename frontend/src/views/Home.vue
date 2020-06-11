@@ -20,7 +20,7 @@
     <div v-show="shoppingLists.length > 0">
       <ul>
         <li v-for="list in shoppingLists" :key="list.id">
-          <router-link :to="'/about/' + list.id">{{ list.name }}</router-link>
+          <router-link :to="'/list/' + list.id">{{ list.name }}</router-link>
           <span class="remove" @click="removeList(list.id)"></span>
         </li>
       </ul>
