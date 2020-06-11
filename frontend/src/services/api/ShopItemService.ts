@@ -1,14 +1,6 @@
-import { ShopItem } from '../../../../src/models/ShopItem/ShopItem';
+import { ShopItem } from "../../../../backend/src/models/ShopItem/ShopItem";
 
-async function addShopItem(){
-
-}
-
-async function updateShopItem(){
-
-}
-
-async function readAllShopItemsForList(id:number): Promise<Array<ShopItem>>{
+async function readAllShopItemsForList(id: number): Promise<Array<ShopItem>>{
     return new Promise(async (res, rej) => {
         await fetch('/api/shop')
         .then(async (data:Response) => {
@@ -26,13 +18,6 @@ async function readAllShopItemsForList(id:number): Promise<Array<ShopItem>>{
 
 }
 
-async function deleteShopItem(){
-
-}
-
 export const ShopItemService = {
-    addShopItem,
-    updateShopItem,
-    readAllShopItemsForList, 
-    deleteShopItem
+    readAllShopItemsForList
 }
