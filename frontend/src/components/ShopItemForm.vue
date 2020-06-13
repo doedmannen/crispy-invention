@@ -152,7 +152,6 @@ export default class ShopItemForm extends Vue {
     )
       .then((shopItem: ShopItem) => {
         if (shopItem.id) {
-          this.clearForm();
           this.actionCompleted();
         }
       })
