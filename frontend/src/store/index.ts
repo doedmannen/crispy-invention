@@ -26,14 +26,18 @@ export default new Vuex.Store({
         .then((data: Array<ShopItem>) => {
           context.commit("setShopItems", data);
         })
-        .catch();
+        .catch(() => {
+          context.commit("setShopItems", []);
+        });
     },
     refreshShoppingLists(context) {
       ShoppingListService.readAllShoppingLists()
         .then((data: Array<ShoppingList>) => {
           context.commit("setShoppingLists", data);
         })
-        .catch();
+        .catch(() => {
+          context.commit("setShoppingLists", []);
+        });
     }
   },
   modules: {}

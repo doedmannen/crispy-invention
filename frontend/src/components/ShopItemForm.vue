@@ -2,34 +2,51 @@
   <div class="ShoppingForm">
     <h3>{{ title }}</h3>
     <div>
-      <input
-        type="text"
-        v-model="name"
-        name="name"
-        placeholder="Item name"
-        @keyup="nameFieldChanged"
-        @click="nameFieldChanged"
-      />
+      <div>
+        Name:
+      </div>
+      <div>
+        <input
+          type="text"
+          v-model="name"
+          name="name"
+          placeholder="Item name"
+          @keydown="nameFieldKeyDown"
+        />
+      </div>
+      <div class="error">{{ nameError }}</div>
     </div>
     <div>
-      <input
-        type="number"
-        v-model="quantity"
-        name="quantity"
-        placeholder="0"
-        @keyup="quantityFieldChanged"
-        @click="quantityFieldChanged"
-      />
+      <div>
+        Quantity:
+      </div>
+      <div>
+        <input
+          type="number"
+          v-model="quantity"
+          name="quantity"
+          placeholder="0"
+          @keyup="quantityFieldKeyDown"
+          @click="quantityFieldChanged"
+        />
+      </div>
+      <div class="error">{{ quantityError }}</div>
     </div>
     <div>
-      <select name="category" v-model="category">
-        <option v-for="(category, index) in categories" :key="index">{{
-          category
-        }}</option>
-      </select>
+      <div>
+        Category:
+      </div>
+      <div>
+        <select name="category" v-model="category">
+          <option v-for="(category, index) in categories" :key="index">{{
+            category
+          }}</option>
+        </select>
+      </div>
     </div>
     <div>
       <button @click="submitShopItem">{{ actionText }}</button>
+      <button @click="cancelAction">Cancel</button>
     </div>
   </div>
 </template>
@@ -38,6 +55,8 @@
 import { Component, Prop, Vue, Emit } from "vue-property-decorator";
 import { ShopItemService } from "../services/api/ShopItemService";
 import { ShopItem } from "../../../backend/src/models/ShopItem/ShopItem";
+import { InputParser } from "../services/parsers/InputParser";
+import { Validator } from "../services/validators/Validator";
 
 @Component
 export default class ShopItemForm extends Vue {
@@ -45,6 +64,8 @@ export default class ShopItemForm extends Vue {
   private category: string;
   private name: string;
   private quantity: number;
+  private nameError: string;
+  private quantityError: string;
 
   constructor() {
     super();
@@ -52,6 +73,8 @@ export default class ShopItemForm extends Vue {
     this.category = this.categories[0];
     this.name = "";
     this.quantity = 0;
+    this.quantityError = "";
+    this.nameError = "";
   }
 
   @Prop({ required: true }) readonly createMode!: boolean;
@@ -76,25 +99,48 @@ export default class ShopItemForm extends Vue {
     return this.name.trim();
   }
 
+  public quantityFieldKeyDown(e: KeyboardEvent): void {
+    this.quantityFieldChanged();
+    this.submitIfKeyIsEnter(e.keyCode);
+  }
+
+  public nameFieldKeyDown(e: KeyboardEvent): void {
+    this.submitIfKeyIsEnter(e.keyCode);
+  }
+
   public quantityFieldChanged(): void {
-    this.quantity = this.parseQuantity();
+    this.quantity = InputParser.parseQuantity(this.quantity.toString());
   }
 
-  public nameFieldChanged(): void {
-    this.name = this.name.replace(/( ) +/, "$1").substring(0, 30);
-  }
-
-  public parseQuantity(): number {
-    const quantity: number = parseInt(this.quantity.toString());
-    return quantity > 0 ? quantity : 0;
+  public submitIfKeyIsEnter(keyCode: number) {
+    if (keyCode === 13) {
+      this.submitShopItem();
+    }
   }
 
   public submitShopItem(): void {
-    if (this.createMode) {
-      this.createNewShopItem();
-    } else {
-      this.editShopItem();
+    if (this.validateForm()) {
+      if (this.createMode) {
+        this.createNewShopItem();
+      } else {
+        this.editShopItem();
+      }
     }
+  }
+
+  public validateForm(): boolean {
+    let valid = true;
+    this.quantityError = "";
+    this.nameError = "";
+    if (!Validator.isValidName(this.name)) {
+      this.nameError = "Name must be 1-30 characters long.";
+      valid = false;
+    }
+    if (!Validator.isValidQuantity(this.quantity)) {
+      this.quantityError = "Quantity must be 1-999.";
+      valid = false;
+    }
+    return valid;
   }
 
   public createNewShopItem(): void {
@@ -102,13 +148,17 @@ export default class ShopItemForm extends Vue {
       this.shoppingListId,
       this.name,
       this.category,
-      this.parseQuantity()
-    ).then((shopItem: ShopItem) => {
-      if (shopItem.id) {
-        this.clearForm();
-        this.actionCompleted();
-      }
-    });
+      InputParser.parseQuantity(this.quantity.toString())
+    )
+      .then((shopItem: ShopItem) => {
+        if (shopItem.id) {
+          this.clearForm();
+          this.actionCompleted();
+        }
+      })
+      .catch(() => {
+        // Empty catch
+      });
   }
 
   public editShopItem(): void {
@@ -118,23 +168,34 @@ export default class ShopItemForm extends Vue {
       this.name,
       this.category,
       this.quantity
-    ).then((shopItem: ShopItem) => {
-      if (shopItem.id) {
-        this.clearForm();
-        this.actionCompleted();
-      }
-    });
+    )
+      .then((shopItem: ShopItem) => {
+        if (shopItem.id) {
+          this.clearForm();
+          this.actionCompleted();
+        }
+      })
+      .catch(() => {
+        // Empty catch
+      });
   }
 
   public clearForm(): void {
     this.name = "";
     this.quantity = 0;
     this.category = this.categories[0];
+    this.nameError = "";
+    this.quantityError = "";
   }
 
   @Emit()
   public actionCompleted(): void {
     return;
+  }
+
+  @Emit()
+  public cancelAction(): void {
+    this.clearForm();
   }
 
   mounted(): void {

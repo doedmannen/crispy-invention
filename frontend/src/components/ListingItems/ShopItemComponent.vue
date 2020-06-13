@@ -23,7 +23,7 @@ export default class ShopItemComponent extends Vue {
     });
   }
 
-  public goToEdit() {
+  public goToEdit(): void {
     this.$router.push({ path: `/edit/${this.itemId}` });
   }
 

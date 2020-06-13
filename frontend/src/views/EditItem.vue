@@ -1,5 +1,5 @@
 <template>
-  <div class="List">
+  <div class="List" v-if="currentItem !== undefined">
     <ShopItemForm
       :createMode="false"
       :titleName="currentItem.name"
@@ -9,12 +9,13 @@
       :_quantity="currentItem.quantity"
       :_category="currentItem.category"
       @action-completed="refreshShopItemsAndRedirect"
+      @cancel-action="redirectBack"
     />
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue, Watch } from "vue-property-decorator";
 import "../store";
 import ShopItemForm from "../components/ShopItemForm.vue";
 import { ShopItem } from "../../../backend/src/models/ShopItem/ShopItem";
@@ -26,13 +27,6 @@ import { ShopItem } from "../../../backend/src/models/ShopItem/ShopItem";
   }
 })
 export default class EditItem extends Vue {
-  public refreshShopItemsAndRedirect(): void {
-    this.$store.dispatch("refreshShopItems", this.$route.params.id);
-    this.$router.push({
-      path: `/list/${this.currentItem.shoppingListId}`
-    });
-  }
-
   get currentId(): number {
     return parseInt(this.$route.params["id"]) || 0;
   }
@@ -43,10 +37,30 @@ export default class EditItem extends Vue {
     )[0];
   }
 
-  mounted(): void {
+  public refreshShopItemsAndRedirect(): void {
+    this.$store.dispatch("refreshShopItems", this.$route.params.id);
+    this.redirectBack();
+  }
+
+  public redirectBack(): void {
+    this.$router.push({
+      path: `/list/${this.currentItem.shoppingListId}`
+    });
+  }
+
+  public redirectIfInvalidShopItem(): void {
     if (this.currentItem === undefined) {
       this.$router.push({ path: "/" });
     }
+  }
+
+  @Watch("$route", { immediate: true, deep: true })
+  routeChanged(): void {
+    this.redirectIfInvalidShopItem();
+  }
+
+  mounted(): void {
+    this.redirectIfInvalidShopItem();
   }
 }
 </script>

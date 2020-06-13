@@ -1,5 +1,5 @@
 <template>
-  <div class="List">
+  <div class="List" v-if="currentList !== undefined">
     <ShopItemForm
       :createMode="true"
       :titleName="listName"
@@ -22,7 +22,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue, Watch } from "vue-property-decorator";
 import "../store";
 import ShopItemForm from "../components/ShopItemForm.vue";
 import ShopItemComponent from "../components/ListingItems/ShopItemComponent.vue";
@@ -37,10 +37,6 @@ import { ShoppingList } from "../../../backend/src/models/ShoppingList/ShoppingL
   }
 })
 export default class List extends Vue {
-  public refreshShopItems(): void {
-    this.$store.dispatch("refreshShopItems", this.$route.params.id);
-  }
-
   get listName(): string {
     if (this.currentList !== undefined) {
       return this.currentList.name;
@@ -62,8 +58,24 @@ export default class List extends Vue {
     return this.$store.state.shopItems;
   }
 
-  async mounted() {
-    await this.refreshShopItems();
+  public refreshShopItems(): void {
+    this.$store.dispatch("refreshShopItems", this.$route.params.id);
+  }
+
+  public redirectIfInvalidShoppingList(): void {
+    if (this.currentList === undefined) {
+      this.$router.push({ path: "/" });
+    }
+  }
+
+  @Watch("$route", { immediate: true, deep: true })
+  routeChanged(): void {
+    this.redirectIfInvalidShoppingList();
+  }
+
+  mounted(): void {
+    this.redirectIfInvalidShoppingList();
+    this.refreshShopItems();
   }
 }
 </script>

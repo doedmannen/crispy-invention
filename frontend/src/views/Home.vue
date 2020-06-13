@@ -10,11 +10,13 @@
           type="text"
           v-model="shoppingListName"
           placeholder="A creative name"
-          @keyup="watchNameKeyDown"
+          @keydown="nameFieldKeyDown"
         />
       </div>
+      <div class="error">{{ nameError }}</div>
       <div>
-        <button @click="createNewShoppingList">Submit</button>
+        <button @click="submitNewList">Add</button>
+        <button @click="clearInputFields">Clear</button>
       </div>
     </div>
     <div v-show="shoppingLists.length > 0">
@@ -37,6 +39,8 @@ import "../store";
 import { ShoppingList } from "../../../backend/src/models/ShoppingList/ShoppingList";
 import { ShoppingListService } from "../services/api/ShoppingListService";
 import ShoppingListComponent from "../components/ListingItems/ShoppingListComponent.vue";
+import { InputParser } from "../services/parsers/InputParser";
+import { Validator } from "../services/validators/Validator";
 
 @Component({
   name: "Home",
@@ -45,16 +49,35 @@ import ShoppingListComponent from "../components/ListingItems/ShoppingListCompon
   }
 })
 export default class Home extends Vue {
-  private shoppingListName = "";
+  private shoppingListName: string;
+  private nameError: string;
+
+  constructor() {
+    super();
+    this.shoppingListName = "";
+    this.nameError = "";
+  }
 
   public refreshShoppingLists(): void {
     this.$store.dispatch("refreshShoppingLists");
   }
 
-  public watchNameKeyDown(e: KeyboardEvent): void {
+  public nameFieldKeyDown(e: KeyboardEvent): void {
     if (e.keyCode === 13) {
+      this.submitNewList();
+    }
+  }
+
+  public submitNewList(): void {
+    this.shoppingListName = InputParser.stripName(this.shoppingListName);
+    if (this.validateInput()) {
       this.createNewShoppingList();
     }
+  }
+
+  public clearInputFields(): void {
+    this.shoppingListName = "";
+    this.nameError = "";
   }
 
   public createNewShoppingList(): void {
@@ -62,10 +85,24 @@ export default class Home extends Vue {
       .trim()
       .replace(/( ) +/, "$1")
       .substring(0, 30);
-    ShoppingListService.createNewShoppingList(name).then(() => {
-      this.shoppingListName = "";
-      this.refreshShoppingLists();
-    });
+    ShoppingListService.createNewShoppingList(name)
+      .then(() => {
+        this.clearInputFields();
+        this.refreshShoppingLists();
+      })
+      .catch(() => {
+        // Empty catch
+      });
+  }
+
+  public validateInput(): boolean {
+    this.nameError = "";
+    let output = true;
+    if (!Validator.isValidName(this.shoppingListName)) {
+      this.nameError = "Name must be 1-30 characters long.";
+      output = false;
+    }
+    return output;
   }
 
   get shoppingLists(): Array<ShoppingList> {
@@ -78,8 +115,8 @@ export default class Home extends Vue {
       : "";
   }
 
-  async mounted() {
-    await this.refreshShoppingLists();
+  mounted(): void {
+    this.refreshShoppingLists();
   }
 }
 </script>

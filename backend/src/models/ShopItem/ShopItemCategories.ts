@@ -1,4 +1,4 @@
-const Categories:Array<string> = ["FOOD", "SNACK", "OTHER"];
+const Categories:Array<string> = ["FOOD", "SNACKS", "OTHER"];
 
 export default {
     Categories

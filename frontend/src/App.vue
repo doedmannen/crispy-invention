@@ -4,7 +4,9 @@
       Shopping list app
     </h1>
     <div class="logo-container">
-      <img class="logo" alt="logo" src="./assets/logo.png" />
+      <router-link to="/">
+        <img class="logo" alt="logo" src="./assets/logo.png" />
+      </router-link>
     </div>
     <router-view />
   </div>
@@ -93,6 +95,15 @@ export default class App extends Vue {
       margin: 20px 0;
       font-size: 16pt;
     }
+  }
+  div.error {
+    margin-top: -10px;
+    color: #9c2323;
+    font-size: 8pt;
+    margin-bottom: 10px;
+  }
+  div.error:empty {
+    display: none;
   }
 }
 </style>
