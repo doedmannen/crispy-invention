@@ -10,6 +10,17 @@
   </div>
 </template>
 
+<script lang="ts">
+import { Component, Vue } from "vue-property-decorator";
+
+@Component
+export default class App extends Vue {
+  mounted(): void {
+    this.$router.push({ path: "/" });
+  }
+}
+</script>
+
 <style lang="scss">
 #app {
   margin: 20px;
@@ -19,20 +30,38 @@
   text-align: center;
   color: #2c3e50;
   font-size: 14pt;
-  input[type="text"] {
-    border: none;
-    border-bottom: 1px solid #748291;
+  input[type="text"],
+  input[type="number"],
+  select {
+    border: 1px solid #748291;
     text-align: center;
     font-size: 14pt;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
     padding: 10px;
+    min-width: 200px;
+    width: 200px;
+  }
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+  span.edit::after,
+  span.remove::after {
+    font-size: 12pt;
+    margin-left: 20px;
+    cursor: pointer;
+  }
+  span.edit::after {
+    content: "[edit]";
+    color: #5b5c15;
   }
   span.remove::after {
     content: "[x]";
-    font-size: 12pt;
-    margin-left: 20px;
     color: #9c2323;
-    cursor: pointer;
   }
   button {
     border: none;
@@ -40,9 +69,11 @@
     background-color: #ffffff;
     color: #2c3e50;
     cursor: pointer;
+    margin: 10px;
   }
   div.logo-container {
     height: 100px;
+    margin-bottom: 20px;
     img.logo {
       height: 100%;
     }
@@ -52,6 +83,15 @@
     text-decoration: none;
     &:hover {
       color: #88939e;
+    }
+  }
+  ul {
+    padding-top: 0;
+    padding-left: 0;
+    li {
+      list-style: none;
+      margin: 20px 0;
+      font-size: 16pt;
     }
   }
 }

@@ -10,9 +10,18 @@ const routes: Array<RouteConfig> = [
     component: () => import("@/views/Home.vue")
   },
   {
-    path: "/list",
+    path: "/list/:id",
     name: "List",
     component: () => import("@/views/List.vue")
+  },
+  {
+    path: "/edit/:id",
+    name: "Edit",
+    component: () => import("@/views/EditItem.vue")
+  },
+  {
+    path: "*",
+    component: () => import("@/views/Home.vue")
   }
 ];
 

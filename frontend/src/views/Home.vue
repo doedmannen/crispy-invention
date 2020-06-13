@@ -1,10 +1,10 @@
 <template>
   <div class="Home">
     <div>
-      <p>
+      <h3>
         Create a new shopping list
         {{ orSelectBelow }}
-      </p>
+      </h3>
       <div>
         <input
           type="text"
@@ -20,8 +20,11 @@
     <div v-show="shoppingLists.length > 0">
       <ul>
         <li v-for="list in shoppingLists" :key="list.id">
-          <router-link :to="'/list/' + list.id">{{ list.name }}</router-link>
-          <span class="remove" @click="removeList(list.id)"></span>
+          <ShoppingListComponent
+            @list-removal-action="refreshShoppingLists"
+            :name="list.name"
+            :listId="list.id"
+          />
         </li>
       </ul>
     </div>
@@ -33,9 +36,13 @@ import { Component, Vue } from "vue-property-decorator";
 import "../store";
 import { ShoppingList } from "../../../backend/src/models/ShoppingList/ShoppingList";
 import { ShoppingListService } from "../services/api/ShoppingListService";
+import ShoppingListComponent from "../components/ListingItems/ShoppingListComponent.vue";
 
 @Component({
-  name: "Home"
+  name: "Home",
+  components: {
+    ShoppingListComponent
+  }
 })
 export default class Home extends Vue {
   private shoppingListName = "";
@@ -45,8 +52,6 @@ export default class Home extends Vue {
   }
 
   public watchNameKeyDown(e: KeyboardEvent): void {
-    this.shoppingListName = this.shoppingListName.substring(0, 30);
-
     if (e.keyCode === 13) {
       this.createNewShoppingList();
     }
@@ -63,13 +68,7 @@ export default class Home extends Vue {
     });
   }
 
-  public removeList(id: number): void {
-    ShoppingListService.deleteList(id).finally(() => {
-      this.refreshShoppingLists();
-    });
-  }
-
-  get shoppingLists(): ShoppingList {
+  get shoppingLists(): Array<ShoppingList> {
     return this.$store.state.shoppingLists;
   }
 
@@ -84,19 +83,3 @@ export default class Home extends Vue {
   }
 }
 </script>
-
-<style scoped lang="scss">
-div.Home {
-  ul {
-    padding-top: 20px;
-    padding-left: 0;
-    li {
-      list-style: none;
-      margin-bottom: 10px;
-      a {
-        font-size: 16pt;
-      }
-    }
-  }
-}
-</style>
