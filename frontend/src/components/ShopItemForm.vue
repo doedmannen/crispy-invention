@@ -46,7 +46,7 @@
     </div>
     <div>
       <button @click="submitShopItem">{{ actionText }}</button>
-      <button @click="cancelAction">Cancel</button>
+      <button @click="cancelAction">{{ cancelText }}</button>
     </div>
   </div>
 </template>
@@ -95,8 +95,8 @@ export default class ShopItemForm extends Vue {
     return this.createMode ? "Add" : "Save";
   }
 
-  get trimmedNameForPost(): string {
-    return this.name.trim();
+  get cancelText(): string {
+    return this.createMode ? "Clear" : "Cancel";
   }
 
   public quantityFieldKeyDown(e: KeyboardEvent): void {
@@ -146,7 +146,7 @@ export default class ShopItemForm extends Vue {
   public createNewShopItem(): void {
     ShopItemService.createNewShopItem(
       this.shoppingListId,
-      this.name,
+      InputParser.stripName(this.name),
       this.category,
       InputParser.parseQuantity(this.quantity.toString())
     )
@@ -165,13 +165,12 @@ export default class ShopItemForm extends Vue {
     ShopItemService.editShopItem(
       this.itemId,
       this.shoppingListId,
-      this.name,
+      InputParser.stripName(this.name),
       this.category,
-      this.quantity
+      InputParser.parseQuantity(this.quantity.toString())
     )
       .then((shopItem: ShopItem) => {
         if (shopItem.id) {
-          this.clearForm();
           this.actionCompleted();
         }
       })
@@ -190,7 +189,7 @@ export default class ShopItemForm extends Vue {
 
   @Emit()
   public actionCompleted(): void {
-    return;
+    this.clearForm();
   }
 
   @Emit()
