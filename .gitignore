@@ -1,6 +1,9 @@
 # Ignore wwwroot builds 
 wwwroot/
 
+# Ignore 
+backend/database/database.db
+
 # Logs
 logs
 *.log
